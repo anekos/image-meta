@@ -1,0 +1,8 @@
+[package]
+name = "example"
+version = "0.1.0"
+authors = ["anekos <anekos@snca.net>"]
+edition = "2018"
+
+[dependencies]
+image-meta = { path = "../" }
