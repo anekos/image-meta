@@ -3,8 +3,8 @@ mod errors;
 mod types;
 mod loader;
 
+pub use loader::*;
 pub use types::ImageMeta;
-pub use loader::png::load;
 
 
 
