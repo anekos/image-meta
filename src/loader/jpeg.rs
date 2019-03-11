@@ -74,17 +74,3 @@ fn is_sof(marker: u8) -> bool {
         _ => false
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::loader::jpeg::load;
-
-    #[test]
-    fn test_load() {
-        let file = std::fs::File::open("test-files/paw.jpg").unwrap();
-        let mut file = std::io::BufReader::new(file);
-        let meta = load(&mut file).unwrap();
-        assert_eq!(meta.dimensions.width, 507);
-        assert_eq!(meta.dimensions.height, 370);
-    }
-}

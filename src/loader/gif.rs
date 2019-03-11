@@ -35,18 +35,3 @@ fn read_header<R: BufRead + Seek>(image: &mut R) -> ImageResult<Dimensions> {
     let height = image.read_u16::<LittleEndian>().map(u32::from)?;
     Ok(Dimensions { width, height })
 }
-
-
-#[cfg(test)]
-mod tests {
-    use crate::loader::gif::load;
-
-    #[test]
-    fn test_load() {
-        let file = std::fs::File::open("test-files/paw.gif").unwrap();
-        let mut file = std::io::BufReader::new(file);
-        let meta = load(&mut file).unwrap();
-        assert_eq!(meta.dimensions.width, 507);
-        assert_eq!(meta.dimensions.height, 370);
-    }
-}

@@ -58,19 +58,3 @@ fn read_chunk<R: BufRead + Seek>(image: &mut R) -> ImageResult<([u8;4], Vec<u8>)
     image.seek(SeekFrom::Current(4))?;
     Ok((chunk_name, result))
 }
-
-
-
-#[cfg(test)]
-mod tests {
-    use crate::loader::png::load;
-
-    #[test]
-    fn test_load() {
-        let file = std::fs::File::open("test-files/paw.png").unwrap();
-        let mut file = std::io::BufReader::new(file);
-        let meta = load(&mut file).unwrap();
-        assert_eq!(meta.dimensions.width, 507);
-        assert_eq!(meta.dimensions.height, 370);
-    }
-}

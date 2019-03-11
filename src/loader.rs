@@ -28,3 +28,35 @@ pub fn load<R: BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
     try_to_load!(jpeg, image);
     png::load(image)
 }
+
+
+
+#[cfg(test)]
+mod tests {
+    use std::fs::File;
+    use std::io::BufReader;
+
+    use crate::errors::ImageResult;
+    use crate::loader;
+    use crate::types::ImageMeta;
+
+
+    fn test_load_x<F>(extension: &str, load: F)
+    where F: Fn(&mut BufReader<File>) -> ImageResult<ImageMeta> {
+        let file = File::open(format!("test-files/paw.{}", extension)).unwrap();
+        let mut file = BufReader::new(file);
+        let meta = load(&mut file).unwrap();
+        assert_eq!(meta.dimensions.width, 507);
+        assert_eq!(meta.dimensions.height, 370);
+    }
+
+    #[test]
+    fn test_load() {
+        test_load_x("gif", loader::gif::load);
+        test_load_x("jpg", loader::jpeg::load);
+        test_load_x("png", loader::png::load);
+        test_load_x("gif", loader::load);
+        test_load_x("jpg", loader::load);
+        test_load_x("png", loader::load);
+    }
+}
