@@ -1,5 +1,7 @@
 
-use std::io::{BufRead, Seek, SeekFrom};
+use std::io::{BufRead, BufReader, Seek, SeekFrom};
+use std::fs::File;
+use std::path::Path;
 
 pub mod gif;
 pub mod jpeg;
@@ -27,6 +29,12 @@ pub fn load<R: BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
     try_to_load!(gif, image);
     try_to_load!(jpeg, image);
     png::load(image)
+}
+
+pub fn load_from_file<T: AsRef<Path>>(file: &T) -> ImageResult<ImageMeta> {
+    let file = File::open(file.as_ref())?;
+    let mut file = BufReader::new(file);
+    load(&mut file)
 }
 
 
