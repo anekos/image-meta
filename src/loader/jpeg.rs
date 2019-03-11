@@ -4,7 +4,7 @@ use std::io::{BufRead, Cursor, Seek, SeekFrom};
 use byteorder::{ReadBytesExt, BigEndian};
 
 use crate::errors::{ImageError, ImageResult, ImageResultU};
-use crate::types::{Dimensions, ImageMeta};
+use crate::types::{Dimensions, Format, ImageMeta};
 
 
 
@@ -15,7 +15,10 @@ const SOI: u8 = 0xd8;
 pub fn load<R: BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
     read_signature(image)?;
     let dimensions = read_sof(image)?;
-    Ok(ImageMeta { dimensions })
+    Ok(ImageMeta {
+        dimensions,
+        format: Format::Jpeg,
+    })
 }
 
 fn read_signature<R: BufRead + Seek>(image: &mut R) -> ImageResultU {
