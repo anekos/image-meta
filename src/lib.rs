@@ -1,7 +1,7 @@
 
 mod errors;
-mod types;
 mod loader;
+mod types;
 
 pub use loader::*;
 pub use types::ImageMeta;
