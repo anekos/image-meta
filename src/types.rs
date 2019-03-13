@@ -21,3 +21,10 @@ pub enum Format {
     Jpeg,
     Png,
 }
+
+
+impl ImageMeta {
+    pub fn is_animation(&self) -> bool {
+        self.animation_frames.is_some()
+    }
+}
