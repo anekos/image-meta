@@ -4,7 +4,7 @@ use std::io::{BufRead, Cursor, Seek, SeekFrom};
 use byteorder::{ReadBytesExt, BigEndian};
 
 use crate::errors::{ImageError, ImageResult, ImageResultU};
-use crate::types::{Dimensions, Format, ImageMeta};
+use crate::types::{Color, Dimensions, Format, ImageMeta};
 
 
 
@@ -17,6 +17,7 @@ pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta>
     let dimensions = read_sof(image)?;
     Ok(ImageMeta {
         animation_frames: None,
+        color: Color::Rgb(8),
         dimensions,
         format: Format::Jpeg,
     })

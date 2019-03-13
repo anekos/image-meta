@@ -4,7 +4,7 @@ use std::io::{BufRead, Cursor, Seek, SeekFrom};
 use byteorder::{ReadBytesExt, BigEndian};
 
 use crate::errors::{ImageError, ImageResult, ImageResultU};
-use crate::types::{Dimensions, Format, ImageMeta};
+use crate::types::{Color, Dimensions, Format, ImageMeta};
 
 
 
@@ -14,11 +14,12 @@ const SIGNATURE: [u8; 8] = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
     read_signature(image)?;
 
-    let dimensions = read_header(image)?;
+    let (dimensions, color) = read_header(image)?;
     let animation_frames = read_fctls(image)?;
 
     Ok(ImageMeta {
         animation_frames,
+        color,
         dimensions,
         format: Format::Png,
     })
@@ -33,7 +34,7 @@ fn read_signature<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResultU {
     Ok(())
 }
 
-fn read_header<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<Dimensions> {
+fn read_header<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<(Dimensions, Color)> {
     let (chunk_name, chunk_data) = read_chunk(image)?;
     if chunk_name != *b"IHDR" {
         return Err(ImageError::CorruptImage("Not IHDR".into()));
@@ -42,10 +43,22 @@ fn read_header<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<Dimensi
 
     let width = chunk_data.read_u32::<BigEndian>()?;
     let height = chunk_data.read_u32::<BigEndian>()?;
+    let bit_depth = chunk_data.read_u8()?;
+    let color = chunk_data.read_u8()?;
+    let color = match color {
+        0 => Color::Grayscale(bit_depth),
+        2 => Color::Rgb(bit_depth),
+        3 => Color::Palette(bit_depth),
+        4 => Color::GrayscaleA(bit_depth),
+        6 => Color::RgbA(bit_depth),
+        _ => return Err(ImageError::CorruptImage(format!("Invalid color type: {}", color).into())),
+    };
 
-    // 0: bit_depth, 1: color_type, 2: compression_method, 3: filter_method, 4: interlace_method
+    // 1 compression_method
+    // 1 filter_method
+    // 1 interlace_method
 
-    Ok(Dimensions { height, width })
+    Ok((Dimensions { height, width }, color))
 }
 
 fn read_chunk<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<([u8;4], Vec<u8>)> {

@@ -47,39 +47,113 @@ mod tests {
 
     use crate::errors::ImageResult;
     use crate::loader;
-    use crate::types::ImageMeta;
+    use crate::types::{Color, Dimensions, Format, ImageMeta};
+
+    const DIMS: Dimensions = Dimensions { width: 507, height: 370 };
 
 
-    fn test_load_x<F>(extension: &str, animation: bool, load: F)
+    fn load<F>(extension: &str, animation: bool, loader: F) -> ImageMeta
     where F: Fn(&mut BufReader<File>) -> ImageResult<ImageMeta> {
         let suffix = if animation { "-animation" } else { "" };
         let file = File::open(format!("test-files/paw{}.{}", suffix, extension)).unwrap();
         let mut file = BufReader::new(file);
-        let meta = load(&mut file).unwrap();
-        assert_eq!(meta.dimensions.width, 507);
-        assert_eq!(meta.dimensions.height, 370);
-        if animation {
-            assert_eq!(meta.animation_frames, Some(4));
-        } else {
-            assert_eq!(meta.animation_frames, None);
-        }
+        loader(&mut file).unwrap()
     }
 
     #[test]
-    fn test_load() {
-        test_load_x("gif", false, loader::gif::load);
-        test_load_x("jpg", false, loader::jpeg::load);
-        test_load_x("png", false, loader::png::load);
+    fn test_each_loader() {
+        assert_eq!(
+            load("gif", false, loader::gif::load),
+            ImageMeta {
+                animation_frames: None,
+                color: Color::Palette(8),
+                dimensions: DIMS,
+                format: Format::Gif,
+            });
+        assert_eq!(
+            load("jpg", false, loader::jpeg::load),
+            ImageMeta {
+                animation_frames: None,
+                color: Color::Rgb(8),
+                dimensions: DIMS,
+                format: Format::Jpeg,
+            });
+        assert_eq!(
+            load("png", false, loader::png::load),
+            ImageMeta {
+                animation_frames: None,
+                color: Color::Rgb(8),
+                dimensions: DIMS,
+                format: Format::Png,
+            });
+    }
 
-        test_load_x("gif", true, loader::gif::load);
-        test_load_x("png", true, loader::png::load);
+    #[test]
+    fn test_each_loader_for_animation() {
+        assert_eq!(
+            load("gif", true, loader::gif::load),
+            ImageMeta {
+                animation_frames: Some(4),
+                color: Color::Palette(8),
+                dimensions: DIMS,
+                format: Format::Gif,
+            });
+        assert_eq!(
+            load("png", true, loader::png::load),
+            ImageMeta {
+                animation_frames: Some(4),
+                color: Color::RgbA(8),
+                dimensions: DIMS,
+                format: Format::Png,
+            });
+    }
 
-        test_load_x("gif", false, loader::load);
-        test_load_x("jpg", false, loader::load);
-        test_load_x("png", false, loader::load);
+    #[test]
+    fn test_guess_loader() {
+        assert_eq!(
+            load("gif", false, loader::load),
+            ImageMeta {
+                animation_frames: None,
+                color: Color::Palette(8),
+                dimensions: DIMS,
+                format: Format::Gif,
+            });
+        assert_eq!(
+            load("jpg", false, loader::load),
+            ImageMeta {
+                animation_frames: None,
+                color: Color::Rgb(8),
+                dimensions: DIMS,
+                format: Format::Jpeg,
+            });
+        assert_eq!(
+            load("png", false, loader::load),
+            ImageMeta {
+                animation_frames: None,
+                color: Color::Rgb(8),
+                dimensions: DIMS,
+                format: Format::Png,
+            });
+    }
 
-        test_load_x("gif", true, loader::load);
-        test_load_x("png", true, loader::load);
+    #[test]
+    fn test_guess_loader_for_animation() {
+        assert_eq!(
+            load("gif", true, loader::load),
+            ImageMeta {
+                animation_frames: Some(4),
+                color: Color::Palette(8),
+                dimensions: DIMS,
+                format: Format::Gif,
+            });
+        assert_eq!(
+            load("png", true, loader::load),
+            ImageMeta {
+                animation_frames: Some(4),
+                color: Color::RgbA(8),
+                dimensions: DIMS,
+                format: Format::Png,
+            });
     }
 
     #[test]#[should_panic(expected="Unsupported")]

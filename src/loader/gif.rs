@@ -4,7 +4,7 @@ use std::io::{BufRead, Seek, SeekFrom};
 use byteorder::{ReadBytesExt, LittleEndian};
 
 use crate::errors::{ImageError, ImageResult, ImageResultU};
-use crate::types::{Dimensions, Format, ImageMeta};
+use crate::types::{Color, Dimensions, Format, ImageMeta};
 
 
 
@@ -20,13 +20,14 @@ struct BlockReader {
 
 pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
     read_signature(image)?;
-    let dimensions = read_header(image)?;
+    let (dimensions, color) = read_header(image)?;
 
     let mut reader = BlockReader::default();
     reader.read(image)?;
 
     Ok(ImageMeta {
         animation_frames: if 1 < reader.frames { Some(reader.frames) } else { None },
+        color,
         dimensions,
         format: Format::Gif,
     })
@@ -41,18 +42,20 @@ fn read_signature<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResultU {
     }
 }
 
-fn read_header<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<Dimensions> {
+fn read_header<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<(Dimensions, Color)> {
     let width = image.read_u16::<LittleEndian>().map(u32::from)?;
     let height = image.read_u16::<LittleEndian>().map(u32::from)?;
 
-    let table_bytes = read_table_bits(image)?;
+    let bits = image.read_u8()?;
+    let table_bytes = read_table_bits(bits)?;
+    let resolution = (bits & 0b0111_0000) >> 4;
 
     // 1 Background color index
     // 1 Aspect Ratio
 
     image.seek(SeekFrom::Current(table_bytes + 2))?;
 
-    Ok(Dimensions { width, height })
+    Ok((Dimensions { width, height }, Color::Palette(resolution + 1)))
 }
 
 impl BlockReader {
@@ -89,7 +92,7 @@ impl BlockReader {
         // 2 Height
         image.seek(SeekFrom::Current(8))?;
 
-        let table_bytes = read_table_bits(image)?;
+        let table_bytes = read_table_bits(image.read_u8()?)?;
         image.seek(SeekFrom::Current(table_bytes + 1))?; // `+ 1` means LZW minimum code size
 
         loop {
@@ -106,8 +109,7 @@ impl BlockReader {
 }
 
 /// Returns the bytes to skip
-fn read_table_bits<R: ?Sized + BufRead>(image: &mut R) -> ImageResult<i64> {
-    let bits = image.read_u8()?;
+fn read_table_bits(bits: u8) -> ImageResult<i64> {
     let has_table = (bits & 0b1000_0000) > 0;
     let table_size = 2 << (bits & 0b0000_0111);
     if has_table {
