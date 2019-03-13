@@ -49,22 +49,35 @@ mod tests {
     use crate::types::ImageMeta;
 
 
-    fn test_load_x<F>(extension: &str, load: F)
+    fn test_load_x<F>(extension: &str, animation: bool, load: F)
     where F: Fn(&mut BufReader<File>) -> ImageResult<ImageMeta> {
-        let file = File::open(format!("test-files/paw.{}", extension)).unwrap();
+        let suffix = if animation { "-animation" } else { "" };
+        let file = File::open(format!("test-files/paw{}.{}", suffix, extension)).unwrap();
         let mut file = BufReader::new(file);
         let meta = load(&mut file).unwrap();
         assert_eq!(meta.dimensions.width, 507);
         assert_eq!(meta.dimensions.height, 370);
+        if animation {
+            assert_eq!(meta.animation_frames, Some(4));
+        } else {
+            assert_eq!(meta.animation_frames, None);
+        }
     }
 
     #[test]
     fn test_load() {
-        test_load_x("gif", loader::gif::load);
-        test_load_x("jpg", loader::jpeg::load);
-        test_load_x("png", loader::png::load);
-        test_load_x("gif", loader::load);
-        test_load_x("jpg", loader::load);
-        test_load_x("png", loader::load);
+        test_load_x("gif", false, loader::gif::load);
+        test_load_x("jpg", false, loader::jpeg::load);
+        test_load_x("png", false, loader::png::load);
+
+        test_load_x("gif", true, loader::gif::load);
+        test_load_x("png", true, loader::png::load);
+
+        test_load_x("gif", false, loader::load);
+        test_load_x("jpg", false, loader::load);
+        test_load_x("png", false, loader::load);
+
+        test_load_x("gif", true, loader::load);
+        test_load_x("png", true, loader::load);
     }
 }

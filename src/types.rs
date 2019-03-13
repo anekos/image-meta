@@ -3,6 +3,7 @@
 
 
 pub struct ImageMeta {
+    pub animation_frames: Option<usize>,
     pub dimensions: Dimensions,
     pub format: Format,
 }

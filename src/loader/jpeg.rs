@@ -16,6 +16,7 @@ pub fn load<R: BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
     read_signature(image)?;
     let dimensions = read_sof(image)?;
     Ok(ImageMeta {
+        animation_frames: None,
         dimensions,
         format: Format::Jpeg,
     })
@@ -46,7 +47,7 @@ fn read_segment<R: BufRead + Seek, F>(image: &mut R, target_marker: F) -> ImageR
 where F: Fn(u8) -> bool {
     let prefix = image.read_u8()?;
     if prefix != MARKER {
-        return Err(ImageError::CorruptImage("Marker not found"));
+        return Err(ImageError::CorruptImage("Marker not found".into()));
     }
 
     // Skip stuffing bytes

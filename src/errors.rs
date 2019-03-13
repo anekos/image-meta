@@ -1,4 +1,5 @@
 
+use std::borrow::Cow;
 use failure::Fail;
 
 
@@ -13,7 +14,7 @@ pub enum ImageError {
     #[fail(display = "Invalid signature")]
     InvalidSignature,
     #[fail(display = "Corrupt image: {}", 0)]
-    CorruptImage(&'static str),
+    CorruptImage(Cow<'static, str>),
     #[fail(display = "IO Error: {}", 0)]
     Io(std::io::Error),
 }
