@@ -25,7 +25,7 @@ macro_rules! try_to_load {
     }
 }
 
-pub fn load<R: BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
+pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
     try_to_load!(gif, image);
     try_to_load!(jpeg, image);
     png::load(image)

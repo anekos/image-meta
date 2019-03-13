@@ -18,7 +18,7 @@ struct BlockReader {
 }
 
 
-pub fn load<R: BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
+pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
     read_signature(image)?;
     let dimensions = read_header(image)?;
 
@@ -32,7 +32,7 @@ pub fn load<R: BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
     })
 }
 
-fn read_signature<R: BufRead + Seek>(image: &mut R) -> ImageResultU {
+fn read_signature<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResultU {
     let mut signature = [0u8;6];
     image.read_exact(&mut signature)?;
     match signature {
@@ -41,7 +41,7 @@ fn read_signature<R: BufRead + Seek>(image: &mut R) -> ImageResultU {
     }
 }
 
-fn read_header<R: BufRead + Seek>(image: &mut R) -> ImageResult<Dimensions> {
+fn read_header<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<Dimensions> {
     let width = image.read_u16::<LittleEndian>().map(u32::from)?;
     let height = image.read_u16::<LittleEndian>().map(u32::from)?;
 
@@ -56,7 +56,7 @@ fn read_header<R: BufRead + Seek>(image: &mut R) -> ImageResult<Dimensions> {
 }
 
 impl BlockReader {
-    fn read<R: BufRead + Seek>(&mut self, image: &mut R) -> ImageResultU {
+    fn read<R: ?Sized + BufRead + Seek>(&mut self, image: &mut R) -> ImageResultU {
         loop {
             let b = image.read_u8()?;
             match b {
@@ -68,7 +68,7 @@ impl BlockReader {
         }
     }
 
-    fn read_extension<R: BufRead + Seek>(&mut self, image: &mut R) -> ImageResultU {
+    fn read_extension<R: ?Sized + BufRead + Seek>(&mut self, image: &mut R) -> ImageResultU {
         match image.read_u8()? {
             0x01 | 0xf9 | 0xfe | 0xff => (),
             x => return Err(ImageError::CorruptImage(format!("Unknown extension: {:x}", x).into())),
@@ -82,7 +82,7 @@ impl BlockReader {
         }
     }
 
-    fn read_image_data<R: BufRead + Seek>(&mut self, image: &mut R) -> ImageResultU {
+    fn read_image_data<R: ?Sized + BufRead + Seek>(&mut self, image: &mut R) -> ImageResultU {
         // 2 Left
         // 2 Top
         // 2 Width
@@ -106,7 +106,7 @@ impl BlockReader {
 }
 
 /// Returns the bytes to skip
-fn read_table_bits<R: BufRead>(image: &mut R) -> ImageResult<i64> {
+fn read_table_bits<R: ?Sized + BufRead>(image: &mut R) -> ImageResult<i64> {
     let bits = image.read_u8()?;
     let has_table = (bits & 0b1000_0000) > 0;
     let table_size = 2 << (bits & 0b0000_0111);

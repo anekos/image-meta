@@ -11,7 +11,7 @@ use crate::types::{Dimensions, Format, ImageMeta};
 const SIGNATURE: [u8; 8] = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 
 
-pub fn load<R: BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
+pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
     read_signature(image)?;
 
     let dimensions = read_header(image)?;
@@ -24,7 +24,7 @@ pub fn load<R: BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
     })
 }
 
-fn read_signature<R: BufRead + Seek>(image: &mut R) -> ImageResultU {
+fn read_signature<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResultU {
     let mut signature = [0u8;8];
     image.read_exact(&mut signature)?;
     if SIGNATURE != signature {
@@ -33,7 +33,7 @@ fn read_signature<R: BufRead + Seek>(image: &mut R) -> ImageResultU {
     Ok(())
 }
 
-fn read_header<R: BufRead + Seek>(image: &mut R) -> ImageResult<Dimensions> {
+fn read_header<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<Dimensions> {
     let (chunk_name, chunk_data) = read_chunk(image)?;
     if chunk_name != *b"IHDR" {
         return Err(ImageError::CorruptImage("Not IHDR".into()));
@@ -48,7 +48,7 @@ fn read_header<R: BufRead + Seek>(image: &mut R) -> ImageResult<Dimensions> {
     Ok(Dimensions { height, width })
 }
 
-fn read_chunk<R: BufRead + Seek>(image: &mut R) -> ImageResult<([u8;4], Vec<u8>)> {
+fn read_chunk<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<([u8;4], Vec<u8>)> {
     let length = image.read_u32::<BigEndian>()?;
     let mut chunk_name = [0u8;4];
     image.read_exact(&mut chunk_name)?;
@@ -60,7 +60,7 @@ fn read_chunk<R: BufRead + Seek>(image: &mut R) -> ImageResult<([u8;4], Vec<u8>)
 }
 
 
-fn read_fctls<R: BufRead + Seek>(image: &mut R) -> ImageResult<Option<usize>> {
+fn read_fctls<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<Option<usize>> {
     let mut result = 0;
     let mut chunk_name = [0u8;4];
     loop {

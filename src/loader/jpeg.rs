@@ -12,7 +12,7 @@ const MARKER: u8 = 0xff;
 const SOI: u8 = 0xd8;
 
 
-pub fn load<R: BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
+pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
     read_signature(image)?;
     let dimensions = read_sof(image)?;
     Ok(ImageMeta {
@@ -22,7 +22,7 @@ pub fn load<R: BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
     })
 }
 
-fn read_signature<R: BufRead + Seek>(image: &mut R) -> ImageResultU {
+fn read_signature<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResultU {
     let mut soi = [0u8;2];
     image.read_exact(&mut soi)?;
     if [MARKER, SOI] != soi {
@@ -31,7 +31,7 @@ fn read_signature<R: BufRead + Seek>(image: &mut R) -> ImageResultU {
     Ok(())
 }
 
-fn read_sof<R: BufRead + Seek>(image: &mut R) -> ImageResult<Dimensions> {
+fn read_sof<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<Dimensions> {
     loop {
         if let (_, Some(data)) = read_segment(image, is_sof)? {
             let mut data = Cursor::new(data);
@@ -43,7 +43,7 @@ fn read_sof<R: BufRead + Seek>(image: &mut R) -> ImageResult<Dimensions> {
     }
 }
 
-fn read_segment<R: BufRead + Seek, F>(image: &mut R, target_marker: F) -> ImageResult<(u8, Option<Vec<u8>>)>
+fn read_segment<R: ?Sized + BufRead + Seek, F>(image: &mut R, target_marker: F) -> ImageResult<(u8, Option<Vec<u8>>)>
 where F: Fn(u8) -> bool {
     let prefix = image.read_u8()?;
     if prefix != MARKER {
