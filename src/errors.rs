@@ -11,12 +11,14 @@ pub type ImageResultU = Result<(), ImageError>;
 
 #[derive(Fail, Debug)]
 pub enum ImageError {
-    #[fail(display = "Invalid signature")]
-    InvalidSignature,
     #[fail(display = "Corrupt image: {}", 0)]
     CorruptImage(Cow<'static, str>),
+    #[fail(display = "Invalid signature")]
+    InvalidSignature,
     #[fail(display = "IO Error: {}", 0)]
     Io(std::io::Error),
+    #[fail(display = "Unsupported format")]
+    Unsupported,
 }
 
 

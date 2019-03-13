@@ -8,7 +8,7 @@ pub mod jpeg;
 pub mod png;
 
 use crate::errors::ImageError::InvalidSignature;
-use crate::errors::ImageResult;
+use crate::errors::{ImageError, ImageResult};
 use crate::types::ImageMeta;
 
 
@@ -28,10 +28,11 @@ macro_rules! try_to_load {
 pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
     try_to_load!(gif, image);
     try_to_load!(jpeg, image);
-    png::load(image)
+    try_to_load!(png, image);
+    Err(ImageError::Unsupported)
 }
 
-pub fn load_from_file<T: AsRef<Path>>(file: &T) -> ImageResult<ImageMeta> {
+pub fn load_from_file<T: ?Sized + AsRef<Path>>(file: &T) -> ImageResult<ImageMeta> {
     let file = File::open(file.as_ref())?;
     let mut file = BufReader::new(file);
     load(&mut file)
@@ -79,5 +80,10 @@ mod tests {
 
         test_load_x("gif", true, loader::load);
         test_load_x("png", true, loader::load);
+    }
+
+    #[test]#[should_panic(expected="Unsupported")]
+    fn test_load_bad() {
+        loader::load_from_file("test-files/bad.dat").unwrap();
     }
 }
