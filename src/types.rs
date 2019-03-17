@@ -22,6 +22,7 @@ pub enum Format {
     Gif,
     Jpeg,
     Png,
+    Webp,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

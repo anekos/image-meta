@@ -50,6 +50,14 @@ fn test_each_loader() {
             dimensions: DIMS,
             format: Format::Png,
         });
+    assert_eq!(
+        load_file(".webp", webp::load),
+        ImageMeta {
+            animation_frames: None,
+            color: Color::RgbA(8),
+            dimensions: DIMS,
+            format: Format::Webp,
+        });
 }
 
 #[test]
@@ -105,6 +113,14 @@ fn test_guess_loader() {
             color: Color::Rgb(8),
             dimensions: DIMS,
             format: Format::Png,
+        });
+    assert_eq!(
+        load_file(".webp", load),
+        ImageMeta {
+            animation_frames: None,
+            color: Color::RgbA(8),
+            dimensions: DIMS,
+            format: Format::Webp,
         });
 }
 
