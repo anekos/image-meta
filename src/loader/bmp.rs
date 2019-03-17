@@ -37,7 +37,7 @@ fn read_signature<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResultU {
 fn read_header<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<(Dimensions, Color)> {
     let header_size = image.read_u32::<LittleEndian>()?;
     match header_size {
-        12 => read_os2_header(image),
+        12 | 64 => read_os2_header(image),
         40 | 108 | 124 => read_windows_header(image),
         sz => Err(ImageError::CorruptImage(format!("Unsupported header size: {}", sz).into()))
     }
