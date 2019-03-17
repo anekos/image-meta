@@ -3,6 +3,7 @@ use std::io::{BufRead, BufReader, Seek, SeekFrom};
 use std::fs::File;
 use std::path::Path;
 
+pub mod bmp;
 pub mod gif;
 pub mod jpeg;
 pub mod png;
@@ -29,6 +30,7 @@ pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta>
     try_to_load!(gif, image);
     try_to_load!(jpeg, image);
     try_to_load!(png, image);
+    try_to_load!(bmp, image);
     Err(ImageError::Unsupported)
 }
 
@@ -62,6 +64,14 @@ mod tests {
 
     #[test]
     fn test_each_loader() {
+        assert_eq!(
+            load("bmp", false, loader::bmp::load),
+            ImageMeta {
+                animation_frames: None,
+                color: Color::Rgb(8),
+                dimensions: DIMS,
+                format: Format::Bmp,
+            });
         assert_eq!(
             load("gif", false, loader::gif::load),
             ImageMeta {
@@ -110,6 +120,14 @@ mod tests {
 
     #[test]
     fn test_guess_loader() {
+        assert_eq!(
+            load("bmp", false, loader::load),
+            ImageMeta {
+                animation_frames: None,
+                color: Color::Rgb(8),
+                dimensions: DIMS,
+                format: Format::Bmp,
+            });
         assert_eq!(
             load("gif", false, loader::load),
             ImageMeta {

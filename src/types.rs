@@ -18,6 +18,7 @@ pub struct Dimensions {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Format {
+    Bmp,
     Gif,
     Jpeg,
     Png,
