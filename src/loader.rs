@@ -3,10 +3,12 @@ use std::io::{BufRead, BufReader, Seek, SeekFrom};
 use std::fs::File;
 use std::path::Path;
 
+mod riff;
 pub mod bmp;
 pub mod gif;
 pub mod jpeg;
 pub mod png;
+pub mod webp;
 
 use crate::errors::ImageError::InvalidSignature;
 use crate::errors::{ImageError, ImageResult};
@@ -31,6 +33,7 @@ pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta>
     try_to_load!(gif, image);
     try_to_load!(png, image);
     try_to_load!(bmp, image);
+    try_to_load!(webp, image);
     Err(ImageError::Unsupported)
 }
 
