@@ -3,6 +3,10 @@ name = "image-meta"
 version = "0.1.0"
 authors = ["anekos <anekos@snca.net>"]
 edition = "2018"
+description = "Image meta information loader"
+repository = "http://github.com/anekos/image-meta"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
 
 [dependencies]
 byteorder = "1.3"
