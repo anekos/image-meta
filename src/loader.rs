@@ -12,7 +12,7 @@ pub mod webp;
 
 use crate::errors::ImageError::InvalidSignature;
 use crate::errors::{ImageError, ImageResult};
-use crate::types::ImageMeta;
+use crate::types::{Format, ImageMeta};
 
 
 
@@ -46,4 +46,16 @@ pub fn load_from_file<T: ?Sized + AsRef<Path>>(file: &T) -> ImageResult<ImageMet
     let file = File::open(file.as_ref())?;
     let mut file = BufReader::new(file);
     load(&mut file)
+}
+
+pub fn load_with_format<R: ?Sized + BufRead + Seek>(image: &mut R, format: Format) -> ImageResult<ImageMeta> {
+    use Format::*;
+
+    match format {
+        Bmp => bmp::load(image),
+        Gif => gif::load(image),
+        Jpeg => jpeg::load(image),
+        Png => png::load(image),
+        Webp => webp::load(image),
+    }
 }
