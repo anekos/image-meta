@@ -58,6 +58,14 @@ fn test_each_loader() {
             dimensions: DIMS,
             format: Format::Webp,
         });
+    assert_eq!(
+        load_file(".lossless.webp", webp::load),
+        ImageMeta {
+            animation_frames: None,
+            color: Color::RgbA(8),
+            dimensions: DIMS,
+            format: Format::Webp,
+        });
 }
 
 #[test]
