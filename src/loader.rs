@@ -37,6 +37,11 @@ pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta>
     Err(ImageError::Unsupported)
 }
 
+pub fn load_from_buf(buffer: &[u8]) -> ImageResult<ImageMeta> {
+    let mut buffer = std::io::Cursor::new(buffer);
+    load(&mut buffer)
+}
+
 pub fn load_from_file<T: ?Sized + AsRef<Path>>(file: &T) -> ImageResult<ImageMeta> {
     let file = File::open(file.as_ref())?;
     let mut file = BufReader::new(file);
