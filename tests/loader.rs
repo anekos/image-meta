@@ -3,6 +3,7 @@ use std::fs::File;
 use std::io::BufReader;
 
 use image_meta::*;
+use image_meta::ColorMode::*;
 
 
 
@@ -22,7 +23,7 @@ fn test_each_loader() {
         load_file(".bmp", bmp::load),
         ImageMeta {
             animation_frames: None,
-            color: Color::Rgb(8),
+            color: Color { mode: Rgb, alpha_channel: false, resolution: 8},
             dimensions: DIMS,
             format: Format::Bmp,
         });
@@ -30,7 +31,7 @@ fn test_each_loader() {
         load_file(".gif", gif::load),
         ImageMeta {
             animation_frames: None,
-            color: Color::Palette(8),
+            color: Color { mode: Indexed, alpha_channel: false, resolution: 8},
             dimensions: DIMS,
             format: Format::Gif,
         });
@@ -38,7 +39,7 @@ fn test_each_loader() {
         load_file(".jpg", jpeg::load),
         ImageMeta {
             animation_frames: None,
-            color: Color::Rgb(8),
+            color: Color { mode: Rgb, alpha_channel: false, resolution: 8},
             dimensions: DIMS,
             format: Format::Jpeg,
         });
@@ -46,7 +47,7 @@ fn test_each_loader() {
         load_file(".png", png::load),
         ImageMeta {
             animation_frames: None,
-            color: Color::Rgb(8),
+            color: Color { mode: Rgb, alpha_channel: false, resolution: 8},
             dimensions: DIMS,
             format: Format::Png,
         });
@@ -54,7 +55,7 @@ fn test_each_loader() {
         load_file(".webp", webp::load),
         ImageMeta {
             animation_frames: None,
-            color: Color::RgbA(8),
+            color: Color { mode: Rgb, alpha_channel: true, resolution: 8},
             dimensions: DIMS,
             format: Format::Webp,
         });
@@ -62,7 +63,7 @@ fn test_each_loader() {
         load_file(".lossless.webp", webp::load),
         ImageMeta {
             animation_frames: None,
-            color: Color::RgbA(8),
+            color: Color { mode: Rgb, alpha_channel: true, resolution: 8},
             dimensions: DIMS,
             format: Format::Webp,
         });
@@ -74,7 +75,7 @@ fn test_each_loader_for_animation() {
         load_file("-animation.gif", gif::load),
         ImageMeta {
             animation_frames: Some(4),
-            color: Color::Palette(8),
+            color: Color { mode: Indexed, alpha_channel: false, resolution: 8},
             dimensions: DIMS,
             format: Format::Gif,
         });
@@ -82,7 +83,7 @@ fn test_each_loader_for_animation() {
         load_file("-animation.png", png::load),
         ImageMeta {
             animation_frames: Some(4),
-            color: Color::RgbA(8),
+            color: Color { mode: Rgb, alpha_channel: true, resolution: 8},
             dimensions: DIMS,
             format: Format::Png,
         });
@@ -90,7 +91,7 @@ fn test_each_loader_for_animation() {
         load_file("-animation.webp", webp::load),
         ImageMeta {
             animation_frames: Some(4),
-            color: Color::RgbA(8),
+            color: Color { mode: Rgb, alpha_channel: true, resolution: 8},
             dimensions: DIMS,
             format: Format::Webp,
         });
@@ -102,7 +103,7 @@ fn test_guess_loader() {
         load_file(".bmp", load),
         ImageMeta {
             animation_frames: None,
-            color: Color::Rgb(8),
+            color: Color { mode: Rgb, alpha_channel: false, resolution: 8},
             dimensions: DIMS,
             format: Format::Bmp,
         });
@@ -110,7 +111,7 @@ fn test_guess_loader() {
         load_file(".gif", load),
         ImageMeta {
             animation_frames: None,
-            color: Color::Palette(8),
+            color: Color { mode: Indexed, alpha_channel: false, resolution: 8},
             dimensions: DIMS,
             format: Format::Gif,
         });
@@ -118,7 +119,7 @@ fn test_guess_loader() {
         load_file(".jpg", load),
         ImageMeta {
             animation_frames: None,
-            color: Color::Rgb(8),
+            color: Color { mode: Rgb, alpha_channel: false, resolution: 8},
             dimensions: DIMS,
             format: Format::Jpeg,
         });
@@ -126,7 +127,7 @@ fn test_guess_loader() {
         load_file(".png", load),
         ImageMeta {
             animation_frames: None,
-            color: Color::Rgb(8),
+            color: Color { mode: Rgb, alpha_channel: false, resolution: 8},
             dimensions: DIMS,
             format: Format::Png,
         });
@@ -134,7 +135,7 @@ fn test_guess_loader() {
         load_file(".webp", load),
         ImageMeta {
             animation_frames: None,
-            color: Color::RgbA(8),
+            color: Color { mode: Rgb, alpha_channel: true , resolution: 8},
             dimensions: DIMS,
             format: Format::Webp,
         });
@@ -146,7 +147,7 @@ fn test_guess_loader_for_animation() {
         load_file("-animation.gif", load),
         ImageMeta {
             animation_frames: Some(4),
-            color: Color::Palette(8),
+            color: Color { mode: Indexed, alpha_channel: false, resolution: 8},
             dimensions: DIMS,
             format: Format::Gif,
         });
@@ -154,9 +155,17 @@ fn test_guess_loader_for_animation() {
         load_file("-animation.png", load),
         ImageMeta {
             animation_frames: Some(4),
-            color: Color::RgbA(8),
+            color: Color { mode: Rgb, alpha_channel: true, resolution: 8},
             dimensions: DIMS,
             format: Format::Png,
+        });
+    assert_eq!(
+        load_file("-animation.webp", load),
+        ImageMeta {
+            animation_frames: Some(4),
+            color: Color { mode: Rgb, alpha_channel: true, resolution: 8},
+            dimensions: DIMS,
+            format: Format::Webp,
         });
 }
 

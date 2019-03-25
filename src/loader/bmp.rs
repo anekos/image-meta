@@ -4,7 +4,7 @@ use std::io::{BufRead, Seek, SeekFrom};
 use byteorder::{ReadBytesExt, LittleEndian};
 
 use crate::errors::{ImageError, ImageResult, ImageResultU};
-use crate::types::{Color, Dimensions, Format, ImageMeta};
+use crate::types::{Color, ColorMode, Dimensions, Format, ImageMeta};
 
 
 
@@ -48,7 +48,11 @@ fn read_windows_header<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult
 
     let resolution = image.read_u16::<LittleEndian>()? / 3;
     let dimensions = Dimensions { height, width };
-    let color = Color::Rgb(resolution as u8);
+    let color = Color {
+        alpha_channel: false,
+        mode: ColorMode::Rgb,
+        resolution: resolution as u8,
+    };
 
     Ok((dimensions, color))
 }
@@ -61,7 +65,11 @@ fn read_os2_header<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<(Di
     let resolution = image.read_u16::<LittleEndian>()? / 3;
 
     let dimensions = Dimensions { height, width };
-    let color = Color::Rgb(resolution as u8);
+    let color = Color {
+        alpha_channel: false,
+        mode: ColorMode::Rgb,
+        resolution: resolution as u8,
+    };
 
     Ok((dimensions, color))
 }

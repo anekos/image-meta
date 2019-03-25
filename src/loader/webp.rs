@@ -5,7 +5,7 @@ use std::io::{BufRead, Read, Seek};
 use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::errors::{ImageError, ImageResult, ImageResultU};
-use crate::types::{Color, Dimensions, Format, ImageMeta};
+use crate::types::{Color, ColorMode, Dimensions, Format, ImageMeta};
 use crate::loader::riff::{Chunk, RiffReader};
 
 
@@ -26,10 +26,15 @@ pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta>
     } else {
         None
     };
+    let color = Color {
+        alpha_channel: true,
+        mode: ColorMode::Rgb,
+        resolution: 8,
+    };
 
     Ok(ImageMeta {
         animation_frames,
-        color: Color::RgbA(8),
+        color,
         dimensions,
         format: Format::Webp,
     })

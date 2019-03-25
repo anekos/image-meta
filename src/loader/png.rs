@@ -35,6 +35,8 @@ fn read_signature<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResultU {
 }
 
 fn read_header<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<(Dimensions, Color)> {
+    use crate::types::ColorMode::*;
+
     let (chunk_name, chunk_data) = read_chunk(image)?;
     if chunk_name != *b"IHDR" {
         return Err(ImageError::CorruptImage("Not IHDR".into()));
@@ -43,16 +45,17 @@ fn read_header<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<(Dimens
 
     let width = chunk_data.read_u32::<BigEndian>()?;
     let height = chunk_data.read_u32::<BigEndian>()?;
-    let bit_depth = chunk_data.read_u8()?;
+    let resolution = chunk_data.read_u8()?;
     let color = chunk_data.read_u8()?;
-    let color = match color {
-        0 => Color::Grayscale(bit_depth),
-        2 => Color::Rgb(bit_depth),
-        3 => Color::Palette(bit_depth),
-        4 => Color::GrayscaleA(bit_depth),
-        6 => Color::RgbA(bit_depth),
+    let (mode, alpha_channel) = match color {
+        0 => (Grayscale, false),
+        2 => (Rgb, false),
+        3 => (Indexed, false),
+        4 => (Grayscale, true),
+        6 => (Rgb, true),
         _ => return Err(ImageError::CorruptImage(format!("Invalid color type: {}", color).into())),
     };
+    let color = Color { mode, alpha_channel, resolution };
 
     // 1 compression_method
     // 1 filter_method

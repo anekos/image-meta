@@ -4,7 +4,7 @@ use std::io::{BufRead, Seek, SeekFrom};
 use byteorder::{ReadBytesExt, LittleEndian};
 
 use crate::errors::{ImageError, ImageResult, ImageResultU};
-use crate::types::{Color, Dimensions, Format, ImageMeta};
+use crate::types::{Color, ColorMode, Dimensions, Format, ImageMeta};
 
 
 
@@ -45,14 +45,20 @@ fn read_header<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<(Dimens
 
     let bits = image.read_u8()?;
     let table_bytes = read_table_bits(bits)?;
-    let resolution = (bits & 0b0111_0000) >> 4;
+    // let resolution = (bits & 0b0111_0000) >> 4;
 
     // 1 Background color index
     // 1 Aspect Ratio
 
     image.seek(SeekFrom::Current(table_bytes + 2))?;
 
-    Ok((Dimensions { width, height }, Color::Palette(resolution + 1)))
+    let color = Color {
+        alpha_channel: false,
+        mode: ColorMode::Indexed,
+        resolution: 8,
+    };
+
+    Ok((Dimensions { width, height }, color))
 }
 
 impl BlockReader {

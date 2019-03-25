@@ -26,13 +26,19 @@ pub enum Format {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum Color {
-    Grayscale(u8),
-    GrayscaleA(u8),
-    Palette(u8),
-    Rgb(u8),
-    RgbA(u8),
+pub enum ColorMode {
+    Grayscale,
+    Indexed,
+    Rgb,
 }
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct Color {
+    pub alpha_channel: bool,
+    pub mode: ColorMode,
+    pub resolution: u8,
+}
+
 
 impl ImageMeta {
     pub fn is_animation(&self) -> bool {
