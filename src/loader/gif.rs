@@ -8,9 +8,6 @@ use crate::types::{Color, Dimensions, Format, ImageMeta};
 
 
 
-const GIF87A: [u8; 6] = *b"GIF87a";
-const GIF89A: [u8; 6] = *b"GIF89a";
-
 
 #[derive(Default)]
 struct BlockReader {
@@ -36,8 +33,8 @@ pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta>
 fn read_signature<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResultU {
     let mut signature = [0u8;6];
     image.read_exact(&mut signature)?;
-    match signature {
-        GIF87A | GIF89A => Ok(()),
+    match &signature {
+        b"GIF87a" | b"GIF89a" => Ok(()),
         _ => Err(ImageError::InvalidSignature),
     }
 }

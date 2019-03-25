@@ -9,8 +9,6 @@ use crate::errors::{ImageError, ImageResult, ImageResultU};
 
 
 
-const RIFF: [u8; 4] = *b"RIFF";
-
 
 pub struct RiffReader<T: Read + Seek> {
     buffer: BufReader<T>,
@@ -35,7 +33,7 @@ impl<T: BufRead + Seek> RiffReader<T> {
 
         let mut signature = [0u8;4];
         buffer.read_exact(&mut signature)?;
-        if signature != RIFF {
+        if &signature != b"RIFF" {
             return Err(ImageError::InvalidSignature);
         }
 

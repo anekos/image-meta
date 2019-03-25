@@ -10,22 +10,18 @@ use crate::loader::riff::{Chunk, RiffReader};
 
 
 
-const WEBP: [u8; 4] = *b"WEBP";
-const VP8: [u8; 4] = *b"VP8 ";
-const VP8L: [u8; 4] = *b"VP8L";
-
 
 pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
     let mut reader = RiffReader::open(image)?;
 
-    if *reader.form_type() != WEBP {
+    if reader.form_type() != b"WEBP" {
         return Err(ImageError::InvalidSignature);
     }
 
     while let Some(mut chunk) = reader.read_chunk()? {
-        let dimensions = match *chunk.identifier() {
-            VP8 => read_vp8_chunk(&mut chunk)?,
-            VP8L => read_vp8l_chunk(&mut chunk)?,
+        let dimensions = match chunk.identifier() {
+            b"VP8 " => read_vp8_chunk(&mut chunk)?,
+            b"VP8L" => read_vp8l_chunk(&mut chunk)?,
             _ => continue,
         };
         return Ok(ImageMeta {

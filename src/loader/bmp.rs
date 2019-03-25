@@ -8,8 +8,6 @@ use crate::types::{Color, Dimensions, Format, ImageMeta};
 
 
 
-const BM: [u8; 2] = *b"BM";
-
 
 pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
     read_signature(image)?;
@@ -26,7 +24,7 @@ pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta>
 fn read_signature<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResultU {
     let mut signature = [0u8;2];
     image.read_exact(&mut signature)?;
-    if signature != BM {
+    if signature != *b"BM" {
         return Err(ImageError::InvalidSignature);
     }
     // Skip rest file header
