@@ -86,6 +86,14 @@ fn test_each_loader_for_animation() {
             dimensions: DIMS,
             format: Format::Png,
         });
+    assert_eq!(
+        load_file("-animation.webp", webp::load),
+        ImageMeta {
+            animation_frames: Some(4),
+            color: Color::RgbA(8),
+            dimensions: DIMS,
+            format: Format::Webp,
+        });
 }
 
 #[test]

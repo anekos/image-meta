@@ -2,39 +2,66 @@
 
 use std::io::{BufRead, Read, Seek};
 
-use byteorder::ReadBytesExt;
+use byteorder::{LittleEndian, ReadBytesExt};
 
-use crate::errors::{ImageError, ImageResult};
+use crate::errors::{ImageError, ImageResult, ImageResultU};
 use crate::types::{Color, Dimensions, Format, ImageMeta};
 use crate::loader::riff::{Chunk, RiffReader};
 
 
+pub struct WebpReader<T: BufRead + Seek> {
+    animation_frames: usize,
+    dimensions: Option<Dimensions>,
+    riff: RiffReader<T>,
+}
 
 
 pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
-    let mut reader = RiffReader::open(image)?;
+    let mut reader = WebpReader::new(RiffReader::open(image)?);
+    reader.read()?;
 
-    if reader.form_type() != b"WEBP" {
-        return Err(ImageError::InvalidSignature);
-    }
+    let dimensions = reader.dimensions.ok_or_else(|| ImageError::CorruptImage("VP8? chunk not found".into()))?;
+    let animation_frames = if 0 < reader.animation_frames {
+        Some(reader.animation_frames)
+    } else {
+        None
+    };
 
-    while let Some(mut chunk) = reader.read_chunk()? {
-        let dimensions = match chunk.identifier() {
-            b"VP8 " => read_vp8_chunk(&mut chunk)?,
-            b"VP8L" => read_vp8l_chunk(&mut chunk)?,
-            _ => continue,
-        };
-        return Ok(ImageMeta {
-            animation_frames: None, // FIXME
-            color: Color::RgbA(8), // FIXME
-            dimensions,
-            format: Format::Webp,
-        })
-    }
-
-    Err(ImageError::CorruptImage("Expected chunk not found".into()))
+    Ok(ImageMeta {
+        animation_frames,
+        color: Color::RgbA(8), // FIXME
+        dimensions,
+        format: Format::Webp,
+    })
 }
 
+
+impl<T: BufRead + Seek> WebpReader<T> {
+    pub fn new(riff: RiffReader<T>) -> Self {
+        Self {
+            animation_frames: 0,
+            dimensions: None,
+            riff,
+        }
+    }
+
+    fn read(&mut self) -> ImageResultU {
+        if self.riff.form_type() != b"WEBP" {
+            return Err(ImageError::InvalidSignature);
+        }
+
+        while let Some(mut chunk) = self.riff.read_chunk()? {
+            match chunk.identifier() {
+                b"ANMF" => self.animation_frames += 1,
+                b"VP8 " => self.dimensions = Some(read_vp8_chunk(&mut chunk)?),
+                b"VP8L" => self.dimensions = Some(read_vp8l_chunk(&mut chunk)?),
+                b"VP8X" => self.dimensions = Some(read_vp8x_chunk(&mut chunk)?),
+                _ => (),
+            }
+        }
+        Ok(())
+    }
+}
 
 fn read_vp8_chunk(chunk: &mut Chunk) -> ImageResult<Dimensions> {
     // See https://tools.ietf.org/html/rfc6386#page-30
@@ -81,6 +108,22 @@ fn read_vp8l_chunk(chunk: &mut Chunk) -> ImageResult<Dimensions> {
     Ok(Dimensions {
         width: u32::from(width) + 1,
         height: u32::from(height) + 1,
+    })
+}
+
+fn read_vp8x_chunk(chunk: &mut Chunk) -> ImageResult<Dimensions> {
+    // See https://developers.google.com/speed/webp/docs/webp_lossless_bitstream_specification
+
+    let _bits = chunk.read_u32::<LittleEndian>()?;
+
+    let mut bits = [0u8;6];
+    chunk.read_exact(&mut bits)?;
+    let width = u32::from(bits[2]) << 16 | u32::from(bits[1]) << 8 | u32::from(bits[0]);
+    let height = u32::from(bits[5]) << 16 | u32::from(bits[4]) << 8 | u32::from(bits[3]);
+
+    Ok(Dimensions {
+        width: width + 1,
+        height: height + 1,
     })
 }
 
