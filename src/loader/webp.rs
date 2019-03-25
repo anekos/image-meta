@@ -29,7 +29,7 @@ pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta>
 
     Ok(ImageMeta {
         animation_frames,
-        color: Color::RgbA(8), // FIXME
+        color: Color::RgbA(8),
         dimensions,
         format: Format::Webp,
     })
