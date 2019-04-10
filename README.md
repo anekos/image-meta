@@ -1,6 +1,10 @@
 
 # image-meta
 
+[![Build status](https://travis-ci.org/anekos/image-meta.svg?branch=master)](https://travis-ci.org/anekos/image-meta)
+[![crates.io](https://img.shields.io/crates/v/image-meta.svg)](https://crates.io/crates/image-meta)
+[![Documentation](https://docs.rs/skeptic/badge.svg)](https://docs.rs/image-meta)
+
 Image meta data inspector for rust
 
 
@@ -15,6 +19,11 @@ Image meta data inspector for rust
 
 
 # Usage
+
+```
+[dependencies]
+image-meta = "*"
+```
 
 ```rust,no_run
 use image_meta;
