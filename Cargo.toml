@@ -23,3 +23,6 @@ skeptic = "0.13"
 
 [dev-dependencies]
 skeptic = "0.13"
+
+[badges]
+travis-ci = { repository = "anekos/image-meta" }
