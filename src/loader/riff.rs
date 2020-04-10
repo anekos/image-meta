@@ -20,7 +20,7 @@ pub struct RiffReader<T: Read + Seek> {
 pub struct Chunk<'a> {
     skip_for: &'a mut usize,
     identifier: [u8;4],
-    buffer: Take<&'a mut BufRead>
+    buffer: Take<&'a mut dyn BufRead>
 }
 
 impl<T: BufRead + Seek> RiffReader<T> {
@@ -64,7 +64,7 @@ impl<T: BufRead + Seek> RiffReader<T> {
 
         let size = self.buffer.read_u32::<LittleEndian>()? as usize;
         self.remain -= size + 8;
-        let buffer = (&mut self.buffer as &mut BufRead).take(size as u64);
+        let buffer = (&mut self.buffer as &mut dyn BufRead).take(size as u64);
         self.skip_for = size;
 
         Ok(Some(Chunk { buffer, identifier, skip_for: &mut self.skip_for }))
