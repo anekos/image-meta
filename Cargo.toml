@@ -1,6 +1,6 @@
 [package]
 name = "image-meta"
-version = "0.1.1-alpha.0"
+version = "0.1.1"
 authors = ["anekos <anekos@snca.net>"]
 edition = "2018"
 description = "Image meta information loader"
