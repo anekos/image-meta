@@ -1,6 +1,6 @@
 
 use std::borrow::Cow;
-use failure::Fail;
+use thiserror::Error;
 
 
 
@@ -9,27 +9,14 @@ pub type ImageResultU = Result<(), ImageError>;
 
 
 
-#[derive(Fail, Debug)]
+#[derive(Debug, Error)]
 pub enum ImageError {
-    #[fail(display = "Corrupt image: {}", 0)]
+    #[error("Corrupt image: {0}")]
     CorruptImage(Cow<'static, str>),
-    #[fail(display = "Invalid signature")]
+    #[error("Invalid signature")]
     InvalidSignature,
-    #[fail(display = "IO Error: {}", 0)]
-    Io(std::io::Error),
-    #[fail(display = "Unsupported format")]
+    #[error("IO Error: {0}")]
+    Io(#[from] std::io::Error),
+    #[error("Unsupported format")]
     Unsupported,
 }
-
-
-macro_rules! define_error {
-    ($source:ty, $kind:ident) => {
-        impl From<$source> for ImageError {
-            fn from(error: $source) -> ImageError {
-                ImageError::$kind(error)
-            }
-        }
-    }
-}
-
-define_error!(std::io::Error, Io);
