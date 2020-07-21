@@ -37,10 +37,11 @@ impl<T: BufRead + Seek> RiffReader<T> {
             return Err(ImageError::InvalidSignature);
         }
 
-        let remain = buffer.read_u32::<LittleEndian>()? as usize - 4; // 4 means form_type
+        let remain = buffer.read_u32::<LittleEndian>()? as usize;
 
         let mut form_type = [0u8;4];
         buffer.read_exact(&mut form_type)?;
+        let remain = remain.saturating_sub(4);
 
         Ok(RiffReader {
             buffer,
@@ -63,7 +64,7 @@ impl<T: BufRead + Seek> RiffReader<T> {
         self.buffer.read_exact(&mut identifier)?;
 
         let size = self.buffer.read_u32::<LittleEndian>()? as usize;
-        self.remain -= size + 8;
+        self.remain = self.remain.saturating_sub(size + 8);
         let buffer = (&mut self.buffer as &mut dyn BufRead).take(size as u64);
         self.skip_for = size;
 

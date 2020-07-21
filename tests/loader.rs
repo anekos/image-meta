@@ -1,6 +1,6 @@
 
 use std::fs::File;
-use std::io::BufReader;
+use std::io::{Cursor,BufReader};
 
 use image_meta::*;
 use image_meta::ColorMode::*;
@@ -172,4 +172,22 @@ fn test_guess_loader_for_animation() {
 #[test]#[should_panic(expected="Unsupported")]
 fn test_load_bad() {
     load_from_file("test-files/bad.dat").unwrap();
+}
+
+#[test]
+fn test_load_webp_corrupt_filesize() {
+    // Empty WEBP
+    let mut file = Cursor::new(b"RIFF\x00\x00\x00\x00WEBP");
+    assert!(webp::load(&mut file).is_err());
+
+    // Empty and truncated
+    let mut file = Cursor::new(b"RIFF\x00\x00\x00\x00");
+    assert!(webp::load(&mut file).is_err());
+}
+
+#[test]
+fn test_load_webp_corrupt_riff_chunk() {
+    // This caused subtraction overflow while reading a chunk
+    let mut file = Cursor::new(b"RIFF\x08\x00\x00\x00WEBPVP8 \x00\x00\x00\x00");
+    assert!(webp::load(&mut file).is_err());
 }
