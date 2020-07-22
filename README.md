@@ -25,7 +25,7 @@ Image meta data inspector for rust
 image-meta = "*"
 ```
 
-```rust,no_run
+```rust,ignore
 use image_meta;
 
 fn main() {
