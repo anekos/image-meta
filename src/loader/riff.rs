@@ -1,37 +1,33 @@
-
 #![allow(unused_imports)]
 
 use std::io::{BufRead, BufReader, Cursor, Read, Seek, SeekFrom, Take};
 
-use byteorder::{ReadBytesExt, LittleEndian};
+use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::errors::{ImageError, ImageResult, ImageResultU};
 
-
-
-
 pub struct RiffReader<T: Read + Seek> {
     buffer: BufReader<T>,
-    form_type: [u8;4],
+    form_type: [u8; 4],
     remain: usize,
     skip_for: usize,
 }
 
 pub struct Chunk<'a> {
     skip_for: &'a mut usize,
-    identifier: [u8;4],
-    buffer: Take<&'a mut dyn BufRead>
+    identifier: [u8; 4],
+    buffer: Take<&'a mut dyn BufRead>,
 }
 
 impl<T: BufRead + Seek> RiffReader<T> {
-    pub fn form_type(&self) -> &[u8;4] {
+    pub fn form_type(&self) -> &[u8; 4] {
         &self.form_type
     }
 
     pub fn open(buffer: T) -> ImageResult<Self> {
         let mut buffer = BufReader::new(buffer);
 
-        let mut signature = [0u8;4];
+        let mut signature = [0u8; 4];
         buffer.read_exact(&mut signature)?;
         if &signature != b"RIFF" {
             return Err(ImageError::InvalidSignature);
@@ -39,7 +35,7 @@ impl<T: BufRead + Seek> RiffReader<T> {
 
         let remain = buffer.read_u32::<LittleEndian>()? as usize;
 
-        let mut form_type = [0u8;4];
+        let mut form_type = [0u8; 4];
         buffer.read_exact(&mut form_type)?;
         let remain = remain.saturating_sub(4);
 
@@ -60,7 +56,7 @@ impl<T: BufRead + Seek> RiffReader<T> {
             return Ok(None);
         }
 
-        let mut identifier = [0u8;4];
+        let mut identifier = [0u8; 4];
         self.buffer.read_exact(&mut identifier)?;
 
         let size = self.buffer.read_u32::<LittleEndian>()? as usize;
@@ -68,13 +64,16 @@ impl<T: BufRead + Seek> RiffReader<T> {
         let buffer = (&mut self.buffer as &mut dyn BufRead).take(size as u64);
         self.skip_for = size;
 
-        Ok(Some(Chunk { buffer, identifier, skip_for: &mut self.skip_for }))
+        Ok(Some(Chunk {
+            buffer,
+            identifier,
+            skip_for: &mut self.skip_for,
+        }))
     }
 }
 
-
 impl<'a> Chunk<'a> {
-    pub fn identifier(&self) -> &[u8;4] {
+    pub fn identifier(&self) -> &[u8; 4] {
         &self.identifier
     }
 }

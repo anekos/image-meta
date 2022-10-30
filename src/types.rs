@@ -1,7 +1,3 @@
-
-
-
-
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ImageMeta {
     pub animation_frames: Option<usize>,
@@ -38,7 +34,6 @@ pub struct Color {
     pub mode: ColorMode,
     pub resolution: u8,
 }
-
 
 impl ImageMeta {
     pub fn is_animation(&self) -> bool {

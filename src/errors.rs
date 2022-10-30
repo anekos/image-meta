@@ -1,13 +1,8 @@
-
 use std::borrow::Cow;
 use thiserror::Error;
 
-
-
 pub type ImageResult<T> = Result<T, ImageError>;
 pub type ImageResultU = Result<(), ImageError>;
-
-
 
 #[derive(Debug, Error)]
 pub enum ImageError {

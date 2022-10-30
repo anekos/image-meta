@@ -1,19 +1,14 @@
-
 use std::io::{BufRead, Seek, SeekFrom};
 
-use byteorder::{ReadBytesExt, LittleEndian};
+use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::errors::{ImageError, ImageResult, ImageResultU};
 use crate::types::{Color, ColorMode, Dimensions, Format, ImageMeta};
-
-
-
 
 #[derive(Default)]
 struct BlockReader {
     frames: usize,
 }
-
 
 pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
     read_signature(image)?;
@@ -23,7 +18,11 @@ pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta>
     reader.read(image)?;
 
     Ok(ImageMeta {
-        animation_frames: if 1 < reader.frames { Some(reader.frames) } else { None },
+        animation_frames: if 1 < reader.frames {
+            Some(reader.frames)
+        } else {
+            None
+        },
         color,
         dimensions,
         format: Format::Gif,
@@ -31,7 +30,7 @@ pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta>
 }
 
 fn read_signature<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResultU {
-    let mut signature = [0u8;6];
+    let mut signature = [0u8; 6];
     image.read_exact(&mut signature)?;
     match &signature {
         b"GIF87a" | b"GIF89a" => Ok(()),
@@ -69,7 +68,11 @@ impl BlockReader {
                 0x21 => self.read_extension(image)?,
                 0x2c => self.read_image_data(image)?,
                 0x3b => return Ok(()),
-                x => return Err(ImageError::CorruptImage(format!("Unknown block: {:x}", x).into())),
+                x => {
+                    return Err(ImageError::CorruptImage(
+                        format!("Unknown block: {:x}", x).into(),
+                    ))
+                }
             };
         }
     }
@@ -77,7 +80,11 @@ impl BlockReader {
     fn read_extension<R: ?Sized + BufRead + Seek>(&mut self, image: &mut R) -> ImageResultU {
         match image.read_u8()? {
             0x01 | 0xf9 | 0xfe | 0xff => (),
-            x => return Err(ImageError::CorruptImage(format!("Unknown extension: {:x}", x).into())),
+            x => {
+                return Err(ImageError::CorruptImage(
+                    format!("Unknown extension: {:x}", x).into(),
+                ))
+            }
         };
         loop {
             let size = image.read_u8()?;
