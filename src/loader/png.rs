@@ -1,15 +1,11 @@
-
 use std::io::{BufRead, Cursor, Seek, SeekFrom};
 
-use byteorder::{ReadBytesExt, BigEndian};
+use byteorder::{BigEndian, ReadBytesExt};
 
-use crate::errors::{ImageError, ImageResult, ImageResultU};
+use crate::errors::{ImageError, ImageResult};
 use crate::types::{Color, Dimensions, Format, ImageMeta};
 
-
-
 const SIGNATURE: [u8; 8] = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
-
 
 pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
     read_signature(image)?;
@@ -25,8 +21,8 @@ pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta>
     })
 }
 
-fn read_signature<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResultU {
-    let mut signature = [0u8;8];
+fn read_signature<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult {
+    let mut signature = [0u8; 8];
     image.read_exact(&mut signature)?;
     if SIGNATURE != signature {
         return Err(ImageError::InvalidSignature);
@@ -53,9 +49,17 @@ fn read_header<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<(Dimens
         3 => (Indexed, false),
         4 => (Grayscale, true),
         6 => (Rgb, true),
-        _ => return Err(ImageError::CorruptImage(format!("Invalid color type: {}", color).into())),
+        _ => {
+            return Err(ImageError::CorruptImage(
+                format!("Invalid color type: {}", color).into(),
+            ))
+        }
     };
-    let color = Color { mode, alpha_channel, resolution };
+    let color = Color {
+        mode,
+        alpha_channel,
+        resolution,
+    };
 
     // 1 compression_method
     // 1 filter_method
@@ -64,9 +68,9 @@ fn read_header<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<(Dimens
     Ok((Dimensions { height, width }, color))
 }
 
-fn read_chunk<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<([u8;4], Vec<u8>)> {
+fn read_chunk<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<([u8; 4], Vec<u8>)> {
     let length = image.read_u32::<BigEndian>()?;
-    let mut chunk_name = [0u8;4];
+    let mut chunk_name = [0u8; 4];
     image.read_exact(&mut chunk_name)?;
     let mut result = vec![0u8; length as usize];
     image.read_exact(&mut result)?;
@@ -75,10 +79,9 @@ fn read_chunk<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<([u8;4],
     Ok((chunk_name, result))
 }
 
-
 fn read_fctls<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<Option<usize>> {
     let mut result = 0;
-    let mut chunk_name = [0u8;4];
+    let mut chunk_name = [0u8; 4];
     loop {
         let length = image.read_u32::<BigEndian>()?;
         image.read_exact(&mut chunk_name)?;

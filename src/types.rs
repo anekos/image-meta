@@ -1,7 +1,3 @@
-
-
-
-
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ImageMeta {
     pub animation_frames: Option<usize>,
@@ -16,7 +12,7 @@ pub struct Dimensions {
     pub width: u32,
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, strum::Display)]
 pub enum Format {
     Bmp,
     Gif,
@@ -25,7 +21,7 @@ pub enum Format {
     Webp,
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, strum::Display)]
 pub enum ColorMode {
     Grayscale,
     Indexed,
@@ -38,7 +34,6 @@ pub struct Color {
     pub mode: ColorMode,
     pub resolution: u8,
 }
-
 
 impl ImageMeta {
     pub fn is_animation(&self) -> bool {
