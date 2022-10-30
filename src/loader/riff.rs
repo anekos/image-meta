@@ -47,7 +47,7 @@ impl<T: BufRead + Seek> RiffReader<T> {
         })
     }
 
-    pub fn read_chunk<'a>(&'a mut self) -> ImageResult<Option<Chunk<'a>>> {
+    pub fn read_chunk(&mut self) -> ImageResult<Option<Chunk>> {
         if 0 < self.skip_for {
             self.buffer.seek(SeekFrom::Current(self.skip_for as i64))?;
         }
