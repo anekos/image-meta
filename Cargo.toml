@@ -2,7 +2,7 @@
 name = "image-meta"
 version = "0.1.2-alpha.0"
 authors = ["anekos <anekos@snca.net>"]
-edition = "2018"
+edition = "2021"
 description = "Image meta information loader"
 categories = ["multimedia::images", "multimedia::encoding"]
 keywords = ["image", "metadata"]
@@ -16,15 +16,15 @@ byteorder = "1.4.3"
 thiserror = "1.0.37"
 
 [dev-dependencies]
-skeptic = "0.13"
+skeptic = "0.13.7"
 
 [dev-dependencies.cargo-husky]
-version = "1"
+version = "1.5.0"
 default-features = false
 features = ["precommit-hook", "run-cargo-test", "run-cargo-clippy"]
 
 [build-dependencies]
-skeptic = "0.13"
+skeptic = "0.13.7"
 
 [badges]
 travis-ci = { repository = "anekos/image-meta" }
