@@ -2,7 +2,7 @@ use std::io::{BufRead, Cursor, Seek, SeekFrom};
 
 use byteorder::{BigEndian, ReadBytesExt};
 
-use crate::errors::{ImageError, ImageResult, ImageResultU};
+use crate::errors::{ImageError, ImageResult};
 use crate::types::{Color, Dimensions, Format, ImageMeta};
 
 const SIGNATURE: [u8; 8] = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
@@ -21,7 +21,7 @@ pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta>
     })
 }
 
-fn read_signature<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResultU {
+fn read_signature<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult {
     let mut signature = [0u8; 8];
     image.read_exact(&mut signature)?;
     if SIGNATURE != signature {

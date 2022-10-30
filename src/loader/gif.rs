@@ -2,7 +2,7 @@ use std::io::{BufRead, Seek, SeekFrom};
 
 use byteorder::{LittleEndian, ReadBytesExt};
 
-use crate::errors::{ImageError, ImageResult, ImageResultU};
+use crate::errors::{ImageError, ImageResult};
 use crate::types::{Color, ColorMode, Dimensions, Format, ImageMeta};
 
 #[derive(Default)]
@@ -29,7 +29,7 @@ pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta>
     })
 }
 
-fn read_signature<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResultU {
+fn read_signature<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult {
     let mut signature = [0u8; 6];
     image.read_exact(&mut signature)?;
     match &signature {
@@ -61,7 +61,7 @@ fn read_header<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<(Dimens
 }
 
 impl BlockReader {
-    fn read<R: ?Sized + BufRead + Seek>(&mut self, image: &mut R) -> ImageResultU {
+    fn read<R: ?Sized + BufRead + Seek>(&mut self, image: &mut R) -> ImageResult {
         loop {
             let b = image.read_u8()?;
             match b {
@@ -77,7 +77,7 @@ impl BlockReader {
         }
     }
 
-    fn read_extension<R: ?Sized + BufRead + Seek>(&mut self, image: &mut R) -> ImageResultU {
+    fn read_extension<R: ?Sized + BufRead + Seek>(&mut self, image: &mut R) -> ImageResult {
         match image.read_u8()? {
             0x01 | 0xf9 | 0xfe | 0xff => (),
             x => {
@@ -95,7 +95,7 @@ impl BlockReader {
         }
     }
 
-    fn read_image_data<R: ?Sized + BufRead + Seek>(&mut self, image: &mut R) -> ImageResultU {
+    fn read_image_data<R: ?Sized + BufRead + Seek>(&mut self, image: &mut R) -> ImageResult {
         // 2 Left
         // 2 Top
         // 2 Width

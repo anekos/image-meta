@@ -2,7 +2,7 @@ use std::io::{BufRead, Seek, SeekFrom};
 
 use byteorder::{LittleEndian, ReadBytesExt};
 
-use crate::errors::{ImageError, ImageResult, ImageResultU};
+use crate::errors::{ImageError, ImageResult};
 use crate::types::{Color, ColorMode, Dimensions, Format, ImageMeta};
 
 pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
@@ -17,7 +17,7 @@ pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta>
     })
 }
 
-fn read_signature<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResultU {
+fn read_signature<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult {
     let mut signature = [0u8; 2];
     image.read_exact(&mut signature)?;
     if signature != *b"BM" {

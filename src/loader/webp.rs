@@ -2,7 +2,7 @@ use std::io::{BufRead, Read, Seek};
 
 use byteorder::{LittleEndian, ReadBytesExt};
 
-use crate::errors::{ImageError, ImageResult, ImageResultU};
+use crate::errors::{ImageError, ImageResult};
 use crate::loader::riff::{Chunk, RiffReader};
 use crate::types::{Color, ColorMode, Dimensions, Format, ImageMeta};
 
@@ -47,7 +47,7 @@ impl<T: BufRead + Seek> WebpReader<T> {
         }
     }
 
-    fn read(&mut self) -> ImageResultU {
+    fn read(&mut self) -> ImageResult {
         if self.riff.form_type() != b"WEBP" {
             return Err(ImageError::InvalidSignature);
         }

@@ -4,7 +4,7 @@ use std::io::{BufRead, BufReader, Cursor, Read, Seek, SeekFrom, Take};
 
 use byteorder::{LittleEndian, ReadBytesExt};
 
-use crate::errors::{ImageError, ImageResult, ImageResultU};
+use crate::errors::{ImageError, ImageResult};
 
 pub struct RiffReader<T: Read + Seek> {
     buffer: BufReader<T>,
