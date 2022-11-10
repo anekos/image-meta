@@ -1,31 +1,27 @@
-
-use clap::{Arg, app_from_crate, crate_name, crate_version, crate_authors, crate_description};
+use clap::Parser;
 use regex::Captures;
 
 use image_meta::load_from_file;
 
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+   #[arg(short, long, help = "Format: e.g) `%w x %h (%a)`")]
+   format: Option<String>,
+
+   files: Vec<String>,
+}
 
 
 fn main() {
-    let args = app_from_crate!()
-        .arg(Arg::with_name("format")
-             .help("Database name")
-             .short("f")
-             .long("format")
-             .takes_value(true))
-        .arg(Arg::with_name("path")
-             .min_values(0));
-
-    let matches = args.get_matches();
-    let format = matches.value_of("format");
+    let args = Args::parse();
 
     let keys = regex::Regex::new("%(.)").unwrap();
-    let targets: Vec<&str> = matches.values_of("path").unwrap().collect();
 
-    for target in targets {
-        let meta = load_from_file(&target).unwrap();
-        if let Some(format) = format {
-            let replaced = keys.replace_all(format, |caps: &Captures| {
+    for file in args.files {
+        let meta = load_from_file(&file).unwrap();
+        if let Some(ref format) = args.format {
+            let replaced = keys.replace_all(&format, |caps: &Captures| {
                 match &caps[1] {
                     "w" => format!("{}", meta.dimensions.width),
                     "h" => format!("{}", meta.dimensions.height),
