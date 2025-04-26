@@ -108,10 +108,10 @@ fn read_vp8l_chunk(chunk: &mut Chunk) -> ImageResult<Dimensions> {
 
     let mut bits = [0u8; 4];
     chunk.read_exact(&mut bits)?;
-    let width = u16::from(bits[1] & 0b0011_1111) << 8 | u16::from(bits[0]);
-    let height = u16::from(bits[3] & 0b0000_1111) << 10
-        | u16::from(bits[2]) << 2
-        | u16::from(bits[1] & 0b1100_0000) >> 6;
+    let width = (u16::from(bits[1] & 0b0011_1111) << 8) | u16::from(bits[0]);
+    let height = (u16::from(bits[3] & 0b0000_1111) << 10)
+        | (u16::from(bits[2]) << 2)
+        | (u16::from(bits[1] & 0b1100_0000) >> 6);
 
     Ok(Dimensions {
         width: u32::from(width) + 1,
@@ -126,8 +126,8 @@ fn read_vp8x_chunk(chunk: &mut Chunk) -> ImageResult<Dimensions> {
 
     let mut bits = [0u8; 6];
     chunk.read_exact(&mut bits)?;
-    let width = u32::from(bits[2]) << 16 | u32::from(bits[1]) << 8 | u32::from(bits[0]);
-    let height = u32::from(bits[5]) << 16 | u32::from(bits[4]) << 8 | u32::from(bits[3]);
+    let width = (u32::from(bits[2]) << 16) | (u32::from(bits[1]) << 8) | u32::from(bits[0]);
+    let height = (u32::from(bits[5]) << 16) | (u32::from(bits[4]) << 8) | u32::from(bits[3]);
 
     Ok(Dimensions {
         width: width + 1,
@@ -136,7 +136,7 @@ fn read_vp8x_chunk(chunk: &mut Chunk) -> ImageResult<Dimensions> {
 }
 
 fn extract_dimension(bits: [u8; 2]) -> (u16, u8) {
-    let size = u16::from(bits[1] & 0b0011_1111) << 8 | u16::from(bits[0]);
+    let size = (u16::from(bits[1] & 0b0011_1111) << 8) | u16::from(bits[0]);
     let scale = (bits[1] & 0b1100_0000) >> 6;
     (size, scale)
 }
