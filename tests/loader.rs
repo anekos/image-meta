@@ -86,6 +86,19 @@ fn test_each_loader() {
         }
     );
     assert_eq!(
+        load_file(".hdr", hdr::load),
+        ImageMeta {
+            animation_frames: None,
+            color: Color {
+                mode: Rgb,
+                alpha_channel: false,
+                resolution: 32
+            },
+            dimensions: DIMS,
+            format: Format::Hdr,
+        }
+    );
+    assert_eq!(
         load_file(".lossless.webp", webp::load),
         ImageMeta {
             animation_frames: None,

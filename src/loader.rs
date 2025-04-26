@@ -4,6 +4,7 @@ use std::path::Path;
 
 pub mod bmp;
 pub mod gif;
+pub mod hdr;
 pub mod jpeg;
 pub mod png;
 mod riff;
@@ -31,6 +32,7 @@ pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta>
     try_to_load!(png, image);
     try_to_load!(bmp, image);
     try_to_load!(webp, image);
+    try_to_load!(hdr, image);
     Err(ImageError::Unsupported)
 }
 
@@ -57,5 +59,6 @@ pub fn load_with_format<R: ?Sized + BufRead + Seek>(
         Jpeg => jpeg::load(image),
         Png => png::load(image),
         Webp => webp::load(image),
+        Hdr => hdr::load(image),
     }
 }
