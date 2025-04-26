@@ -43,7 +43,7 @@ fn read_windows_header<R: ?Sized + BufRead + Seek>(
     image: &mut R,
 ) -> ImageResult<(Dimensions, Color)> {
     let width = image.read_u32::<LittleEndian>()?;
-    let height = image.read_i32::<LittleEndian>()?.unsigned_abs() as u32;
+    let height = image.read_i32::<LittleEndian>()?.unsigned_abs();
     image.seek(SeekFrom::Current(2))?; // planes
 
     let resolution = image.read_u16::<LittleEndian>()? / 3;
