@@ -1,7 +1,4 @@
-use std::io::{BufRead, Cursor, Seek, SeekFrom};
-use std::primitive;
-
-use byteorder::{BigEndian, ReadBytesExt};
+use std::io::{BufRead, Seek};
 
 use crate::errors::{ImageError, ImageResult};
 use crate::types::{Color, Dimensions, Format, ImageMeta};
@@ -58,6 +55,7 @@ fn read_header<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<(Dimens
                         ));
                     }
                 },
+                "PRIMARIES" => {}
                 _ => {}
             }
         }

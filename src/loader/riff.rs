@@ -72,17 +72,16 @@ impl<T: BufRead + Seek> RiffReader<T> {
     }
 }
 
-impl<'a> Chunk<'a> {
+impl Chunk<'_> {
     pub fn identifier(&self) -> &[u8; 4] {
         &self.identifier
     }
 }
 
-impl<'a> Read for Chunk<'a> {
+impl Read for Chunk<'_> {
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
-        self.buffer.read(buf).map(|it| {
+        self.buffer.read(buf).inspect(|&it| {
             *self.skip_for -= it;
-            it
         })
     }
 }
