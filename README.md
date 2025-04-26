@@ -16,6 +16,7 @@ Image meta data inspector for rust
 - [JPEG](https://en.wikipedia.org/wiki/JPEG)
 - [PNG](https://en.wikipedia.org/wiki/Portable_Network_Graphics)
 - [WebP](https://en.wikipedia.org/wiki/WebP)
+- [HDR](https://en.wikipedia.org/wiki/RGBE_image_format)
 
 
 # Usage
