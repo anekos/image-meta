@@ -73,6 +73,19 @@ fn test_each_loader() {
         }
     );
     assert_eq!(
+        load_file(".qoi", qoi::load),
+        ImageMeta {
+            animation_frames: None,
+            color: Color {
+                mode: Rgb,
+                alpha_channel: false,
+                resolution: 8
+            },
+            dimensions: DIMS,
+            format: Format::Qoi,
+        }
+    );
+    assert_eq!(
         load_file(".webp", webp::load),
         ImageMeta {
             animation_frames: None,
@@ -208,6 +221,19 @@ fn test_guess_loader() {
             },
             dimensions: DIMS,
             format: Format::Png,
+        }
+    );
+    assert_eq!(
+        load_file(".qoi", load),
+        ImageMeta {
+            animation_frames: None,
+            color: Color {
+                mode: Rgb,
+                alpha_channel: false,
+                resolution: 8
+            },
+            dimensions: DIMS,
+            format: Format::Qoi,
         }
     );
     assert_eq!(
