@@ -13,11 +13,11 @@ Image meta data inspector for rust
 - [APNG](https://en.wikipedia.org/wiki/APNG)
 - [BMP](https://en.wikipedia.org/wiki/BMP_file_format)
 - [GIF](https://en.wikipedia.org/wiki/GIF)
+- [HDR](https://en.wikipedia.org/wiki/RGBE_image_format)
 - [JPEG](https://en.wikipedia.org/wiki/JPEG)
 - [PNG](https://en.wikipedia.org/wiki/Portable_Network_Graphics)
-- [WebP](https://en.wikipedia.org/wiki/WebP)
-- [HDR](https://en.wikipedia.org/wiki/RGBE_image_format)
 - [QOI](https://en.wikipedia.org/wiki/QOI_\(image_format\))
+- [WebP](https://en.wikipedia.org/wiki/WebP)
 
 
 # Usage
