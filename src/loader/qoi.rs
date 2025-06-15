@@ -5,6 +5,8 @@ use byteorder::{BigEndian, ReadBytesExt};
 use crate::errors::{ImageError, ImageResult};
 use crate::types::{Color, Dimensions, Format, ImageMeta};
 
+// See: https://github.com/phoboslab/qoi/blob/master/qoi.h
+
 const SIGNATURE: [u8; 4] = [0x71, 0x6f, 0x69, 0x66];
 
 pub fn load<R: ?Sized + BufRead + Seek>(image: &mut R) -> ImageResult<ImageMeta> {
