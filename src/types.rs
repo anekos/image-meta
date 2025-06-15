@@ -20,6 +20,7 @@ pub enum Format {
     Png,
     Webp,
     Hdr,
+    Qoi,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, strum::Display)]
